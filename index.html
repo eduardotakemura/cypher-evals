@@ -1,0 +1,517 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LLM Prompt Formatter</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            font-weight: 300;
+        }
+
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        .content {
+            padding: 40px;
+        }
+
+        .section {
+            margin-bottom: 30px;
+        }
+
+        .section-title {
+            font-size: 1.5rem;
+            color: #333;
+            margin-bottom: 15px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .section-title::before {
+            content: '';
+            width: 4px;
+            height: 24px;
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            border-radius: 2px;
+        }
+
+        .guidelines-container {
+            border: 2px solid #e1e5e9;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .guidelines-header {
+            background: #f8f9fa;
+            padding: 15px 20px;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #e1e5e9;
+            transition: background-color 0.3s ease;
+        }
+
+        .guidelines-header:hover {
+            background: #e9ecef;
+        }
+
+        .guidelines-header h3 {
+            color: #495057;
+            font-size: 1.1rem;
+            margin: 0;
+        }
+
+        .expand-icon {
+            font-size: 1.2rem;
+            color: #6c757d;
+            transition: transform 0.3s ease;
+        }
+
+        .guidelines-header.expanded .expand-icon {
+            transform: rotate(180deg);
+        }
+
+        .guidelines-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease;
+        }
+
+        .guidelines-content.expanded {
+            max-height: 500px;
+        }
+
+        .guidelines-textarea {
+            width: 100%;
+            min-height: 200px;
+            padding: 20px;
+            border: none;
+            resize: vertical;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9rem;
+            line-height: 1.5;
+            background: #f8f9fa;
+        }
+
+        .guidelines-textarea:focus {
+            outline: none;
+            background: white;
+            box-shadow: inset 0 0 0 2px #4facfe;
+        }
+
+        .dropdown-container {
+            position: relative;
+        }
+
+        .task-dropdown {
+            width: 100%;
+            padding: 15px 20px;
+            border: 2px solid #e1e5e9;
+            border-radius: 10px;
+            font-size: 1rem;
+            background: white;
+            cursor: pointer;
+            transition: border-color 0.3s ease;
+        }
+
+        .task-dropdown:focus {
+            outline: none;
+            border-color: #4facfe;
+        }
+
+        .task-info {
+            margin-top: 15px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            border-left: 4px solid #4facfe;
+        }
+
+        .task-info h4 {
+            color: #495057;
+            margin-bottom: 10px;
+            font-size: 1.1rem;
+        }
+
+        .task-info p {
+            color: #6c757d;
+            line-height: 1.6;
+        }
+
+        .text-field {
+            width: 100%;
+            min-height: 120px;
+            padding: 20px;
+            border: 2px solid #e1e5e9;
+            border-radius: 10px;
+            font-size: 1rem;
+            font-family: inherit;
+            resize: vertical;
+            transition: border-color 0.3s ease;
+        }
+
+        .text-field:focus {
+            outline: none;
+            border-color: #4facfe;
+        }
+
+        .buttons-container {
+            display: flex;
+            gap: 15px;
+            margin-top: 30px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 15px 30px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(79, 172, 254, 0.3);
+        }
+
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: #5a6268;
+            transform: translateY(-2px);
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+            color: white;
+        }
+
+        .btn-success:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(40, 167, 69, 0.3);
+        }
+
+        .copy-feedback {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: #28a745;
+            color: white;
+            padding: 15px 25px;
+            border-radius: 8px;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+            transform: translateX(400px);
+            transition: transform 0.3s ease;
+            z-index: 1000;
+        }
+
+        .copy-feedback.show {
+            transform: translateX(0);
+        }
+
+        @media (max-width: 768px) {
+            .content {
+                padding: 20px;
+            }
+            
+            .header h1 {
+                font-size: 2rem;
+            }
+            
+            .buttons-container {
+                flex-direction: column;
+            }
+            
+            .btn {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🤖 LLM Prompt Formatter</h1>
+            <p>Format your prompts for language model evaluation tasks</p>
+        </div>
+        
+        <div class="content">
+            <!-- Guidelines Section -->
+            <div class="section">
+                <h2 class="section-title">📋 GUIDELINES</h2>
+                <div class="guidelines-container">
+                    <div class="guidelines-header" onclick="toggleGuidelines()">
+                        <h3>Click to expand/collapse guidelines</h3>
+                        <span class="expand-icon">▼</span>
+                    </div>
+                    <div class="guidelines-content" id="guidelinesContent">
+                        <textarea class="guidelines-textarea" id="guidelinesText" placeholder="Enter your guidelines here...">i need help in a data annotation task, analyze the following prompt and the two model responses based on the following dimensions:
+- LANGUAGE: Portuguese from Portugal (PT-PT)
+- LANGUAGE: look for any language mistake (grammar, spelling) and unlocalized language (expressions/words/spelling that aren't used in country, so anything that a native from the country wouldn't use)
+- TRUTHFULNESS: please CAREFULLY verify all content and statements for truthfulness (including dates and any specific informations), OBS: when the response is based on a reference text (provided in the prompt) consider that text is the truth reference and it's truth
+- INSTRUCTION FOLLOWING: check if response addressed all prompts requirements, list at the start the prompt requirements (explicity and implicity/expected) in a bullet point list
+- analyze each response individually
+- JUST point mistakes or incoherencies, DO NOT list where in adhered to the prompt
+</textarea>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Task Description Section -->
+            <div class="section">
+                <h2 class="section-title">📝 TASK DESCRIPTION</h2>
+                <div class="dropdown-container">
+                    <select class="task-dropdown" id="taskDropdown" onchange="updateTaskInfo()">
+                        <option value="">Select a task category...</option>
+                        <option value="rewrite">Rewrite</option>
+                        <option value="classification">Classification</option>
+                        <option value="summarization">Summarization</option>
+                        <option value="extraction">Extraction</option>
+                        <option value="closed-qa">Closed QA</option>
+                        <option value="brainstorming">Brainstorming</option>
+                        <option value="chatbot">Chatbot</option>
+                        <option value="creative-writing">Creative Writing</option>
+                        <option value="open-qa">Open QA</option>
+                    </select>
+                </div>
+                <div class="task-info" id="taskInfo" style="display: none;">
+                    <h4 id="taskTitle"></h4>
+                    <p id="taskDescription"></p>
+                </div>
+            </div>
+
+            <!-- Prompt Section -->
+            <div class="section">
+                <h2 class="section-title">💬 PROMPT</h2>
+                <textarea class="text-field" id="promptText" placeholder="Enter your prompt here..."></textarea>
+            </div>
+
+            <!-- Response 1 Section -->
+            <div class="section">
+                <h2 class="section-title">📄 RESPONSE 1</h2>
+                <textarea class="text-field" id="response1Text" placeholder="Enter the first response here..."></textarea>
+            </div>
+
+            <!-- Response 2 Section -->
+            <div class="section">
+                <h2 class="section-title">📄 RESPONSE 2</h2>
+                <textarea class="text-field" id="response2Text" placeholder="Enter the second response here..."></textarea>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="buttons-container">
+                <button class="btn btn-success" onclick="copyToClipboard()">
+                    📋 Copy Formatted Prompt
+                </button>
+                <button class="btn btn-secondary" onclick="resetFields()">
+                    🔄 Reset Fields
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Copy Feedback -->
+    <div class="copy-feedback" id="copyFeedback">
+        ✅ Copied to clipboard!
+    </div>
+
+    <script>
+        // Task descriptions data
+        const taskData = {
+            'rewrite': {
+                title: '📝 Prompt Category: Rewrite',
+                description: '📃 Description: What it means: You take a piece of writing and change how it sounds or reads, without changing its main point. Unlike Summarization, you don\'t necessarily make it shorter or focus only on the main idea; you\'re just changing how it\'s written, sounds, phrased, etc. Has Reference Text: Yes'
+            },
+            'classification': {
+                title: '📝 Prompt Category: Classification',
+                description: '📃 Description: What it means: You put things into categories or groups, usually based on some rules. Difference: Unlike Extraction, you\'re not just finding one piece of info; you\'re putting things into groups. And unlike Closed QA, you\'re not answering a question in a sentence—you\'re organizing data. Has Reference Text: Yes'
+            },
+            'summarization': {
+                title: '📝 Prompt Category: Summarization',
+                description: '📃 Description: What it means: You take a longer text and shrink it down to its most important ideas, so it\'s shorter and easier to understand. Difference: Unlike Rewrite, you are not just changing the style; you\'re making it shorter and more focused. Has Reference Text: Yes'
+            },
+            'extraction': {
+                title: '📝 Prompt Category: Extraction',
+                description: '📃 Description: What it means: You find and pull out specific information from a text. You\'re not summarizing everything, just finding a certain detail. Difference: Unlike Classification, you\'re not putting items into categories—you\'re just finding an answer. Unlike Open QA, you\'re not using your own knowledge; you must find it in the text provided. Has Reference Text: Yes'
+            },
+            'closed-qa': {
+                title: '📝 Prompt Category: Closed QA',
+                description: '📃 Description: What it means: You\'re asked a question and the answer must come from the text provided. Differences: Unlike Summarization or Rewrite, you don\'t change or improve the text; you just respond to a question. Also, unlike Open QA, you must relate the question to the text. Has Reference Text: Yes'
+            },
+            'brainstorming': {
+                title: '📝 Prompt Category: Brainstorming',
+                description: '📃 Description: What it means: You come up with new ideas or suggestions about a topic. There\'s no \'wrong\' answer, just creative thinking. Has Reference Text: No'
+            },
+            'chatbot': {
+                title: '📝 Prompt Category: Chatbot',
+                description: '📃 Description: What it means: A Chatbot Prompt instructs the model to generate responses while adopting a specific character, personality, or perspective. This involves guiding the model to "act" or "speak" as a particular individual or archetype, such as a teacher, historian, or even a fictional or nonfictional character. Has Reference Text: No'
+            },
+            'creative-writing': {
+                title: '📝 Prompt Category: Creative Writing',
+                description: '📃 Description: What it means: Creative writing prompts are open-ended tasks that encourage imaginative or descriptive responses. These prompts allow the model to explore storytelling, poetry, or vivid descriptions without needing strict facts or structured instructions. Has Reference Text: No'
+            },
+            'open-qa': {
+                title: '📝 Prompt Category: Open QA',
+                description: '📃 Description: What it means: You answer a question that isn\'t linked to a specific text. You rely on what you already know. Has Reference Text: No'
+            }
+        };
+
+        // Toggle guidelines section
+        function toggleGuidelines() {
+            const header = document.querySelector('.guidelines-header');
+            const content = document.getElementById('guidelinesContent');
+            
+            header.classList.toggle('expanded');
+            content.classList.toggle('expanded');
+        }
+
+        // Update task information based on selection
+        function updateTaskInfo() {
+            const dropdown = document.getElementById('taskDropdown');
+            const taskInfo = document.getElementById('taskInfo');
+            const taskTitle = document.getElementById('taskTitle');
+            const taskDescription = document.getElementById('taskDescription');
+            
+            if (dropdown.value && taskData[dropdown.value]) {
+                taskTitle.textContent = taskData[dropdown.value].title;
+                taskDescription.textContent = taskData[dropdown.value].description;
+                taskInfo.style.display = 'block';
+            } else {
+                taskInfo.style.display = 'none';
+            }
+        }
+
+        // Copy formatted prompt to clipboard
+        function copyToClipboard() {
+            const guidelines = document.getElementById('guidelinesText').value;
+            const taskDropdown = document.getElementById('taskDropdown');
+            const prompt = document.getElementById('promptText').value;
+            const response1 = document.getElementById('response1Text').value;
+            const response2 = document.getElementById('response2Text').value;
+            
+            if (!taskDropdown.value) {
+                alert('Please select a task category first!');
+                return;
+            }
+            
+            if (!prompt.trim()) {
+                alert('Please enter a prompt first!');
+                return;
+            }
+            
+            const formattedPrompt = `
+## GUIDELINES
+${guidelines}
+
+## TASK DESCRIPTION:
+${taskData[taskDropdown.value].title}
+${taskData[taskDropdown.value].description}
+
+## PROMPT
+${prompt}
+
+## RESPONSE 1
+${response1}
+
+## RESPONSE 2
+${response2}`;
+            
+            navigator.clipboard.writeText(formattedPrompt).then(() => {
+                showCopyFeedback();
+            }).catch(err => {
+                console.error('Failed to copy: ', err);
+                // Fallback for older browsers
+                const textArea = document.createElement('textarea');
+                textArea.value = formattedPrompt;
+                document.body.appendChild(textArea);
+                textArea.select();
+                document.execCommand('copy');
+                document.body.removeChild(textArea);
+                showCopyFeedback();
+            });
+        }
+
+        // Show copy feedback
+        function showCopyFeedback() {
+            const feedback = document.getElementById('copyFeedback');
+            feedback.classList.add('show');
+            setTimeout(() => {
+                feedback.classList.remove('show');
+            }, 3000);
+        }
+
+        // Reset all fields
+        function resetFields() {
+            document.getElementById('promptText').value = '';
+            document.getElementById('response1Text').value = '';
+            document.getElementById('response2Text').value = '';
+            document.getElementById('taskDropdown').value = '';
+            document.getElementById('taskInfo').style.display = 'none';
+        }
+
+        // Initialize the app
+        document.addEventListener('DOMContentLoaded', function() {
+            // Set default guidelines text
+            document.getElementById('guidelinesText').value = `i need help in a data annotation task, analyze the prompt and two responses:
+- LANGUAGE (PT-PT): look for any language mistake (grammar, spelling) and unlocalized language (expressions/words/spelling that aren't used in portugal, so anything that a native portuguese from portugal wouldn't use)
+- TRUTHFULNESS: (CAREFUL) please carefully verify all content and statements for truthfulness (including dates and any specific informations), when the response is based on a reference text (provided in the prompt) consider that text is the truth reference and it's truth
+- INSTRUCTION FOLLOWING: check if response addressed all prompts requirements, list at the start the prompt requirements (explicity and implicity/expected) in a bullet point list
+- don't need to rank the responses
+- split the analyze for each response = analyze them independently
+- just point out if any mistakes/incoherency, dont need to comment on correct aspects`;
+        });
+    </script>
+</body>
+</html>
