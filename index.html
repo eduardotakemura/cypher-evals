@@ -285,6 +285,13 @@
         <div class="header">
             <h1>🤖 LLM Prompt Formatter</h1>
             <p>Format your prompts for language model evaluation tasks</p>
+            <div style="margin-top: 15px;">
+                <a href="https://cdck-file-uploads-us1.s3.dualstack.us-west-2.amazonaws.com/outliercommunity/original/4X/6/d/d/6dd87cfa129a9af5a586418adcc89a98bc372f08.pdf" 
+                   target="_blank" 
+                   style="color: white; text-decoration: none; background: rgba(255,255,255,0.2); padding: 8px 16px; border-radius: 20px; font-size: 0.9rem; display: inline-block;">
+                    📚 View Project Guidelines
+                </a>
+            </div>
         </div>
         
         <div class="content">
@@ -303,8 +310,7 @@
 - TRUTHFULNESS: please CAREFULLY verify all content and statements for truthfulness (including dates and any specific informations), OBS: when the response is based on a reference text (provided in the prompt) consider that text is the truth reference and it's truth
 - INSTRUCTION FOLLOWING: check if response addressed all prompts requirements, list at the start the prompt requirements (explicity and implicity/expected) in a bullet point list
 - analyze each response individually
-- JUST point mistakes or incoherencies, DO NOT list where in adhered to the prompt
-</textarea>
+- JUST point mistakes or incoherencies, DO NOT list where in adhered to the prompt</textarea>
                     </div>
                 </div>
             </div>
@@ -504,13 +510,13 @@ ${response2}`;
         // Initialize the app
         document.addEventListener('DOMContentLoaded', function() {
             // Set default guidelines text
-            document.getElementById('guidelinesText').value = `i need help in a data annotation task, analyze the prompt and two responses:
-- LANGUAGE (PT-PT): look for any language mistake (grammar, spelling) and unlocalized language (expressions/words/spelling that aren't used in portugal, so anything that a native portuguese from portugal wouldn't use)
-- TRUTHFULNESS: (CAREFUL) please carefully verify all content and statements for truthfulness (including dates and any specific informations), when the response is based on a reference text (provided in the prompt) consider that text is the truth reference and it's truth
+            document.getElementById('guidelinesText').value = `i need help in a data annotation task, analyze the following prompt and the two model responses based on the following dimensions:
+- LANGUAGE: Portuguese from Portugal (PT-PT)
+- LANGUAGE: look for any language mistake (grammar, spelling) and unlocalized language (expressions/words/spelling that aren't used in country, so anything that a native from the country wouldn't use)
+- TRUTHFULNESS: please CAREFULLLY verify all content and statements for truthfulness (including dates and any specific informations), OBS: when the response is based on a reference text (provided in the prompt) consider that text is the truth reference and it's truth
 - INSTRUCTION FOLLOWING: check if response addressed all prompts requirements, list at the start the prompt requirements (explicity and implicity/expected) in a bullet point list
-- don't need to rank the responses
-- split the analyze for each response = analyze them independently
-- just point out if any mistakes/incoherency, dont need to comment on correct aspects`;
+- analyze each response individually
+- JUST point mistakes or incoherencies, DO NOT list where in adhered to the prompt`;
         });
     </script>
 </body>
